@@ -106,11 +106,24 @@ class FeishuAPI:
             # 提取字段值
             title = fields.get("标题", "")
             category = fields.get("分类", "")
-            url = fields.get("链接地址", "")
+            url_data = fields.get("链接地址", "")
             tags = fields.get("标签", [])
             description = fields.get("描述", "")
             icon = fields.get("图标", [])
             
+            # 处理链接字段 - 可能是字典格式 {'link': 'url', 'text': 'text'} 或直接是字符串
+            url = ""
+            if isinstance(url_data, dict):
+                # 如果是字典，优先使用'link'字段
+                url = url_data.get('link', '')
+            else:
+                # 否则直接使用值
+                url = url_data
+                
+            # 确保URL不为空且格式正确
+            if url and not (url.startswith('http://') or url.startswith('https://')):
+                url = 'https://' + url
+                
             # 如果有图标附件，提取第一个图标的URL
             icon_url = ""
             if icon and isinstance(icon, list) and len(icon) > 0:
@@ -126,6 +139,9 @@ class FeishuAPI:
                 "description": description,
                 "icon_url": icon_url
             }
+            
+            # 打印一下处理后的记录，方便调试
+            print(f"处理记录: {title}, URL: {url}")
             
             formatted_records.append(formatted_record)
         
